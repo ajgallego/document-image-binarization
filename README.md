@@ -1,4 +1,3 @@
-
 The code of this repository was used for the following publication. If
 you find this code useful please cite our paper:
 
@@ -119,8 +118,5 @@ Below is a summary table of the datasets used in this work along with a link fro
 | Persian docs | PHI     | http://www.iapr-tc11.org/mediawiki/index.php/Persian_Heritage_Image_Binarization_Dataset_(PHIBD_2012) |
 | Ensiedeln    | ES      | http://www.e-codices.unifr.ch/en/sbe/0611/                  |
 | Salzinnes    | SAM     | https://cantus.simssa.ca/manuscript/133/                    |
-
-
-
 
 
