@@ -1,4 +1,4 @@
-The code of this repository was used for the following publication. If
+The code of this repository was used for the [following publication](https://www.sciencedirect.com/science/article/pii/S0031320318303091). If
 you find this code useful please cite our paper:
 
 ```
