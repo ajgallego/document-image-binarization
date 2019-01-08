@@ -25,7 +25,7 @@ if K.backend() == 'tensorflow':
 def load_dataset_folds(dbname, dbparam):
     train_folds = []
     test_folds = []
-    
+
     DIBCO = [    ['Dibco/2009/handwritten_GR', 'Dibco/2009/printed_GR'],
                  ['Dibco/2010/handwritten_GR'],
                  ['Dibco/2011/handwritten_GR', 'Dibco/2011/printed_GR'],
@@ -33,21 +33,21 @@ def load_dataset_folds(dbname, dbparam):
                  ['Dibco/2013/handwritten_GR', 'Dibco/2013/printed_GR'],
                  ['Dibco/2014/handwritten_GR'],
                  ['Dibco/2016/handwritten_GR']     ]
-    
+
     PALM_train = [ ['Palm/Challenge-1-ForTrain/gt1_GR'], ['Palm/Challenge-1-ForTrain/gt2_GR'] ]
     PALM_test = [ ['Palm/Challenge-1-ForTest/gt1_GR'], ['Palm/Challenge-1-ForTest/gt2_GR'] ]
-    
+
     PHI_train = ['PHI/train/phi_GR']
     PHI_test = ['PHI/test/phi_GR']
-    
+
     EINSIELDELN_train = ['Einsieldeln/train/ein_GR']
     EINSIELDELN_test = ['Einsieldeln/test/ein_GR']
-    
+
     SALZINNES_train = ['Salzinnes/train/sal_GR']
     SALZINNES_test = ['Salzinnes/test/sal_GR']
-    
+
     VOYNICH_test = ['Voynich/voy_GR']
-    
+
     BDI_train = ['BDI/train/bdi11_GR']
     BDI_test = ['BDI/test/bdi11_GR']
 
@@ -82,28 +82,28 @@ def load_dataset_folds(dbname, dbparam):
         test_folds.append(PHI_test)
         test_folds.append(EINSIELDELN_test)
         test_folds.append(SALZINNES_test)
-        
+
         DIBCO.pop(6)
-        DIBCO.pop(5)        
+        DIBCO.pop(5)
         train_folds = [[val for sublist in DIBCO for val in sublist]]
         train_folds.append(PALM_train[0])
         train_folds.append(PALM_train[1])
         train_folds.append(PHI_train)
         train_folds.append(EINSIELDELN_train)
         train_folds.append(SALZINNES_train)
-        
+
         test_folds = [val for sublist in test_folds for val in sublist]  # transform to flat lists
         train_folds = [val for sublist in train_folds for val in sublist]
     else:
         raise Exception('Unknown database name')
-    
-    return train_folds, test_folds 
+
+    return train_folds, test_folds
 
 
 # ----------------------------------------------------------------------------
 def save_images(autoencoder, args, test_folds):
     assert(args.threshold != -1)
-    
+
     array_files = util.load_array_of_files(args.path, test_folds)
 
     for fname in array_files:
@@ -195,13 +195,13 @@ BASE_LOG_NAME = "{}_{}_{}x{}_s{}{}{}_f{}_k{}{}_se{}_e{}_b{}_es{}".format(
                             args.window, args.window, args.step,
                             '_aug' if args.aug else '',
                             '_drop'+str(args.dropout) if args.dropout > 0 else '',
-                            args.nb_filters, 
+                            args.nb_filters,
                             args.kernel,
                             '_s' + str(args.stride) if args.stride > 1 else '',
                             args.nb_super_epoch, args.nb_epoch, args.batch,
                             args.early_stopping_mode)
 
-if args.loadmodel != None: 
+if args.loadmodel != None:
     weights_filename = args.loadmodel + '_ftune' + str(args.db) + str(args.dbp) + '.h5'
 else:
     weights_filename = 'model_weights_' + BASE_LOG_NAME + '.h5'
@@ -254,9 +254,9 @@ print('# Log files:', BASE_LOG_NAME)
 
 
 nb_layers = 5
-autoencoder, encoder, decoder = utilModelREDNet.build_REDNet(nb_layers, 
+autoencoder, encoder, decoder = utilModelREDNet.build_REDNet(nb_layers,
                                         args.window, args.nb_filters,
-                                        args.kernel, args.dropout, 
+                                        args.kernel, args.dropout,
                                         args.stride, args.every)
 
 autoencoder.compile(optimizer='adam', loss=util.micro_fm, metrics=['mse'])
@@ -274,18 +274,11 @@ elif args.test == True:
 
 if args.test == False:
     args.monitor='min'
-    best_th = utilFit.batch_fit_with_data_generator(autoencoder, 
+    best_th = utilFit.batch_fit_with_data_generator(autoencoder,
                     train_data_generator, x_test, y_test, args, weights_filename)
 
     # Re-Load last weights
     autoencoder.load_weights( weights_filename )
-
-
-
-# Final test 
-
-test_data = [[x_test, y_test]]
-run_th_test(autoencoder, args, x_test, y_test)
 
 
 # Save output images
