@@ -2,16 +2,19 @@ The code of this repository was used for the [following publication](https://www
 you find this code useful please cite our paper:
 
 ```
-@article{Gallego2017,
+@article{Gallego2019,
 title = "A selectional auto-encoder approach for document image binarization",
 author = "Jorge Calvo-Zaragoza and Antonio-Javier Gallego",
 journal = "Pattern Recognition",
-year = "2018"
+volume = "86",
+pages = "37 - 47",
+year = "2019",
+issn = "0031-3203",
+doi = "https://doi.org/10.1016/j.patcog.2018.08.011"
 }
 ```
 
 Below we include instructions to binarize and reproduce the experiments.
-
 
 
 ## Binarize
