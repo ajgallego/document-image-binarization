@@ -5,8 +5,8 @@ you find this code useful please cite our paper:
 @article{Gallego2017,
 title = "A selectional auto-encoder approach for document image binarization",
 author = "Jorge Calvo-Zaragoza and Antonio-Javier Gallego",
-journal = "arXiv preprint arXiv:1706.10241",
-year = "2017"
+journal = "Pattern Recognition",
+year = "2018"
 }
 ```
 
