@@ -11,7 +11,7 @@ from keras import backend as K
 #------------------------------------------------------------------------------
 def init():
     random.seed(1337)
-    np.set_printoptions(threshold=np.nan) 
+    np.set_printoptions(threshold=sys.maxsize) 
     np.random.seed(1337)
     sys.setrecursionlimit(40000)
 
