@@ -123,7 +123,8 @@ Below is a summary table of the datasets used in this work along with a link fro
 | Salzinnes    | SAM     | https://cantus.simssa.ca/manuscript/133/                    |
 
 
-The ground truth of Ensiedeln and Salzinnes is available for download at the following link:
+
+The ground truth of Ensiedeln and Salzinnes is available at the following link:
 
 https://forms.gle/nSi3BZz7iammgRXWA
 
