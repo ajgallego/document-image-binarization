@@ -10,7 +10,7 @@ import keras.backend as K
 # ----------------------------------------------------------------------------
 def build_REDNet(nb_layers, input_size, nb_filters=32, k_size=3, dropout=0, strides=1, every=1):
     # -> CONV/FC -> BatchNorm -> ReLu(or other activation) -> Dropout -> CONV/FC ->  # https://arxiv.org/pdf/1502.03167.pdf
-    input_img = Input(shape=(input_size, input_size, 1)) 
+    input_img = Input(shape=(input_size, input_size, 1))
     x = input_img
 
     if K.image_data_format() == 'channels_last':
@@ -20,7 +20,7 @@ def build_REDNet(nb_layers, input_size, nb_filters=32, k_size=3, dropout=0, stri
 
     encoderLayers = [None] * nb_layers
 
-    for i in xrange(nb_layers):
+    for i in range(nb_layers):
         x = Conv2D(nb_filters, kernel_size=k_size, strides=strides, padding='same')(x)
         x = BatchNormalization(axis=bn_axis)(x)
         x = Activation('relu')(x)
@@ -30,7 +30,7 @@ def build_REDNet(nb_layers, input_size, nb_filters=32, k_size=3, dropout=0, stri
 
     encoded = x
 
-    for i in xrange(nb_layers):
+    for i in range(nb_layers):
         ind = nb_layers - i - 1
         x = layers.add([x, encoderLayers[ind]])
 

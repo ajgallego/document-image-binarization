@@ -18,12 +18,12 @@ def load_files(array_x_files, x_sufix, y_sufix):
         img_y = cv2.imread(fname_y, cv2.IMREAD_GRAYSCALE)
         x_data.append(img_x)
         y_data.append(img_y)
-   
-    x_data = np.asarray(x_data).astype('float32')   
+
+    x_data = np.asarray(x_data).astype('float32')
     x_data = 255. - x_data
 
     y_data = np.asarray(y_data).astype('float32')   / 255.
-    y_data = 1. - y_data 
+    y_data = 1. - y_data
 
     return x_data, y_data
 
@@ -61,7 +61,7 @@ def generate_chunks(array_x_files, x_sufix, y_sufix, window_size, step_size):
     y_data = np.asarray(y_data).astype('float32')   / 255.
     y_data = 1. - y_data
 
-    
+
     print(np.min(x_data), np.mean(x_data), np.max(x_data))
     print(np.min(y_data), np.mean(y_data), np.max(y_data))
 
@@ -70,7 +70,7 @@ def generate_chunks(array_x_files, x_sufix, y_sufix, window_size, step_size):
         x_data = x_data.reshape(x_data.shape[0], 1, x_data.shape[1], x_data.shape[2])   # channel_first
         y_data = y_data.reshape(y_data.shape[0], 1, y_data.shape[1], y_data.shape[2])   # channel_first
     else:
-        x_data = x_data.reshape(x_data.shape[0], x_data.shape[1], x_data.shape[2], 1)  
+        x_data = x_data.reshape(x_data.shape[0], x_data.shape[1], x_data.shape[2], 1)
         y_data = y_data.reshape(y_data.shape[0], y_data.shape[1], y_data.shape[2], 1)
 
     return x_data, y_data
@@ -82,8 +82,8 @@ def sliding_window(img, stepSize, windowSize):
     n_steps_y = int( math.ceil( img.shape[0] / float(stepSize) ) )
     n_steps_x = int( math.ceil( img.shape[1] / float(stepSize) ) )
 
-    for y in xrange(n_steps_y):
-        for x in xrange(n_steps_x):
+    for y in range(n_steps_y):
+        for x in range(n_steps_x):
             posX = x * stepSize
             posY = y * stepSize
             posToX = posX + windowSize[0]
@@ -107,7 +107,7 @@ class LazyFileLoader:
       self.x_sufix = x_sufix
       self.y_sufix = y_sufix
       self.pos = 0
-      if page_size <= 0: 
+      if page_size <= 0:
           self.page_size = len(array_x_files)
       else:
           self.page_size = page_size

@@ -35,7 +35,7 @@ def batch_iterator(x, y, batch_size, do_shuffle=False):
         random.shuffle(order)
 
     nb_batch = int( math.ceil( float(len(x)) / float(batch_size) ) )
-    for b in xrange(nb_batch):
+    for b in range(nb_batch):
         from_pos = b * batch_size
         to_pos = (b+1) * batch_size
         if to_pos > len(x):
@@ -66,7 +66,7 @@ def controlled_execution(execute_func, *args):
 
 # ----------------------------------------------------------------------------
 def print_metrics(names, values, prefix=''):
-    for m in xrange(len(names)):
+    for m in range(len(names)):
         if values[m] >= 1.0:
             print(" - %s%s %0.2f" % (prefix, names[m], values[m]), end='' )
         elif values[m] >= 0.0001:
@@ -76,7 +76,7 @@ def print_metrics(names, values, prefix=''):
 
 
 # ----------------------------------------------------------------------------
-# @config.threshold : -1 to search the best threshold 
+# @config.threshold : -1 to search the best threshold
 def evaluate_f1(model, x_test, y_test, config):
     y_test = y_test > 0.5
 
@@ -110,11 +110,11 @@ def evaluate_f1(model, x_test, y_test, config):
 
 
 # ----------------------------------------------------------------------------
-def fit_epochs(model, x_train, y_train, x_test, y_test, config, 
+def fit_epochs(model, x_train, y_train, x_test, y_test, config,
                weights_filename=None, early_stopping=None, best_fm=-1, best_th=-1):
     CLS = "" if config.verbose == 0 else "\r\033[K\r"
-    
-    for e in xrange(config.nb_epoch):
+
+    for e in range(config.nb_epoch):
         score = None
         total_it = 0
 
@@ -172,8 +172,8 @@ def batch_fit(model, x_train, y_train, x_test, y_test, config, weights_filename=
         if config.early_stopping_mode == 'p':
             early_stopping = EarlyStopping(patience=config.early_stopping_patience, monitor=config.monitor)
 
-        best_fm, best_th = fit_epochs(model, x_train, y_train, x_test, y_test, 
-                                      config, weights_filename, early_stopping, 
+        best_fm, best_th = fit_epochs(model, x_train, y_train, x_test, y_test,
+                                      config, weights_filename, early_stopping,
                                       best_fm, best_th)
     return best_th
 
@@ -189,18 +189,18 @@ def batch_fit_with_data_generator(model, train_data_generator, x_test, y_test, c
     for se in range(config.nb_super_epoch):
         print(80 * "-")
         print("SUPER EPOCH: %03d/%03d" % (se+1, config.nb_super_epoch))
-        
+
         train_data_generator.reset()
         train_data_generator.shuffle()
 
         for x_train, y_train in train_data_generator:
             print("> Train on %03d page samples..." % (len(x_train)))
-            
+
             if config.early_stopping_mode == 'p':
                 early_stopping = EarlyStopping(patience=config.early_stopping_patience, monitor=config.monitor)
 
-            best_fm, best_th = fit_epochs(model, x_train, y_train, x_test, y_test, 
-                                          config, weights_filename, early_stopping, 
+            best_fm, best_th = fit_epochs(model, x_train, y_train, x_test, y_test,
+                                          config, weights_filename, early_stopping,
                                           best_fm, best_th)
     return best_th
 
