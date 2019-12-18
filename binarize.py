@@ -16,16 +16,17 @@ K.set_image_data_format('channels_last')
 
 if K.backend() == 'tensorflow':
     import tensorflow as tf    # Memory control with Tensorflow
-    config = tf.ConfigProto()
+    config = tf.compat.v1.ConfigProto()
     config.gpu_options.allow_growth=True
-    sess = tf.Session(config=config)
+    sess = tf.compat.v1.Session(config=config)
 
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 parser = argparse.ArgumentParser(description='A selectional auto-encoder approach for document image binarization')
-parser.add_argument('-imgpath',                  help='path to the image to process')
-parser.add_argument('-modelpath',                help='Path to the model to load')
+parser.add_argument('-imgpath',    required=True,        help='path to the image to process')
+parser.add_argument('-modelpath',   default='MODELS/model_weights_all_None_256x256_s96_aug_m205_f64_k5_s2_se3_e200_b32_esp.h5',
+                                                 help='Path to the model to load')
 parser.add_argument('-w',        default=256,    dest='window',              type=int,   help='window size')
 parser.add_argument('-s',        default=-1,     dest='step',                type=int,   help='step size. -1 to use window size')
 parser.add_argument('-f',        default=64,     dest='nb_filters',          type=int,   help='nb_filters')
@@ -42,15 +43,15 @@ if args.step == -1:
     args.step = args.window
 
 if args.demo == False and args.outFilename == None:
-    util.print_error("ERROR: no output mode selected\nPlease choose between -demo or -save options")
+    util.print_error("ERROR: no output mode selected\nPlease choose between --demo or -save options")
     parser.print_help()
     quit()
 
 
 nb_layers = 5
-autoencoder, encoder, decoder = utilModelREDNet.build_REDNet(nb_layers, 
+autoencoder, encoder, decoder = utilModelREDNet.build_REDNet(nb_layers,
                                         args.window, args.nb_filters,
-                                        args.kernel, args.dropout, 
+                                        args.kernel, args.dropout,
                                         args.stride, args.every)
 
 autoencoder.compile(optimizer='adam', loss=util.micro_fm, metrics=['mse'])
@@ -97,7 +98,7 @@ for (x, y, window) in utilDataGenerator.sliding_window(img, stepSize=args.step, 
             clone *= 255
             clone = clone.astype('uint8')
 
-            cv2.rectangle(clone, (x, y), (x + args.window, y + args.window), (255, 255, 255), 2)            
+            cv2.rectangle(clone, (x, y), (x + args.window, y + args.window), (255, 255, 255), 2)
             cv2.namedWindow("Demo", cv2.WINDOW_NORMAL)
             cv2.imshow("Demo", clone)
             cv2.waitKey(1)
