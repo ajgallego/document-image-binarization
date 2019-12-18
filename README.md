@@ -25,7 +25,7 @@ The `binarize.py` script performs the binarization of an input image using a tra
 | Parameter    | Default | Description                      |
 | ------------ | ------- | -------------------------------- |
 | `-imgpath`   |         | Path to the image to process     |
-| `-modelpath` |         | Path to the model to load        |
+| `-modelpath` |  (*)       | Path to the model to load        |
 | `-w`         |  256    | Input window size                |
 | `-s`         |  -1     | Step size. -1 to use window size |
 | `-f`         |  64     | Number of filters                |
@@ -37,11 +37,17 @@ The `binarize.py` script performs the binarization of an input image using a tra
 | `-save`      |         | Output image filename            |
 | `--demo`     |         | Activate demo mode               |
 
+> (*) By default, the model trained with all datasets will be used.
 
-The mandatory parameters are `-imgpath` and `-modelpath`, the rest are optional. You also have to choose if you want to see a demo (`--demo`) or to save (`-save`) the binarized image.
+The only mandatory parameter is `-imgpath`, the rest are optional. You also have to choose if you want to see a demo (`--demo`) or to save (`-save`) the binarized image.
 
-For example, to binarize the image `img01.png` using the model trained for Dibco 2016 and the parameters specified in the paper, you have to run the following command:
+For example, to binarize the image `img01.png` you can run the following command:
 
+```
+$ python binarize.py -imgpath img01.png -save out.png
+```
+
+If you want to binarize this image using the model trained for Dibco 2016 and the parameters specified in the paper, you have to run the following command:
 
 ```
 $ python binarize.py -imgpath img01.png -modelpath MODELS/model_weights_dibco_6_256x256_s96_aug_m205_f64_k5_s2_se3_e200_b32_esp.h5 -w 256 -s 96 -f 64 -k 5 -stride 2 -th 0.5 --demo
@@ -87,7 +93,7 @@ The parameters of this script are the following:
 
 The only mandatory parameters are `-path` and `-db`. To run the training you must first indicate the path where the datasets are located (with the `-path` parameter) and the name of the dataset to evaluate (with the `-db` parameter). Depending on the name of the dataset the system will create the partitions for training and validation.
 
-The folders of each dataset must have a specific name (see table in section "Datasets" or consult the source code). Within each folder there must be two subfolders, one with the suffix `\_GR` with the images in gray scale, and another with the suffix `\_GT` for the ground truth.
+The folders of each dataset must have a specific name (see table in section "Datasets" or consult the source code). Within each folder there must be two subfolders, one with the suffix `\_GR` with the input images in grayscale, and another with the suffix `\_GT` for the ground truth.
 
 Option `--aug` activates the data augmentation, in this case the system will load the images stored in the folder with prefix `aug_`.
 
