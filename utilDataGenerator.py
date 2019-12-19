@@ -62,8 +62,8 @@ def generate_chunks(array_x_files, x_sufix, y_sufix, window_size, step_size):
     y_data = 1. - y_data
 
 
-    print(np.min(x_data), np.mean(x_data), np.max(x_data))
-    print(np.min(y_data), np.mean(y_data), np.max(y_data))
+    print('x_data min:', np.min(x_data), ' - mean:', np.mean(x_data), ' - max:', np.max(x_data))
+    print('y_data min:', np.min(y_data), ' - mean:', np.mean(y_data), ' - max:', np.max(y_data))
 
 
     if K.image_data_format() == 'channels_first':
