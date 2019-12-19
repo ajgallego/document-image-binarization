@@ -153,136 +153,155 @@ def save_images(autoencoder, args, test_folds):
 
 
 # ----------------------------------------------------------------------------
+def parse_menu():
+    parser = argparse.ArgumentParser(description='A selectional auto-encoder approach for document image binarization')
+    parser.add_argument('-path',        required=True,                                          help='base path to datasets')
+    parser.add_argument('-db',          required=True,  choices=['dibco','palm','phi','ein','sal','voy','bdi','all'],  help='Database name')
+    parser.add_argument('-dbp',                                                                 help='Database dependent parameters [dibco fold, palm gt]')
+    parser.add_argument('--aug',                                           action='store_true', help='Load augmentation folders')
+    parser.add_argument('-w',           default=256,    dest='window',              type=int,   help='window size')
+    parser.add_argument('-s',           default=-1,     dest='step',                type=int,   help='step size. -1 to use window size')
+    parser.add_argument('-f',           default=64,     dest='nb_filters',          type=int,   help='nb_filters')
+    parser.add_argument('-k',           default=5,      dest='kernel',              type=int,   help='kernel size')
+    parser.add_argument('-drop',        default=0,      dest='dropout',             type=float, help='dropout value')
+    parser.add_argument('-page',        default=-1,                                 type=int,   help='Page size to divide the training set. -1 to load all')
+    parser.add_argument('-start_from',  default=0,                                  type=int,   help='Start from this page')
+    parser.add_argument('-super',       default=1,      dest='nb_super_epoch',      type=int,   help='nb_super_epoch')
+    parser.add_argument('-th',          default=-1,     dest='threshold',           type=float, help='threshold. -1 to test from 0 to 1')
+    parser.add_argument('-e',           default=200,    dest='nb_epoch',            type=int,   help='nb_epoch')
+    parser.add_argument('-b',           default=10,     dest='batch',               type=int,   help='batch size')
+    parser.add_argument('-esmode',      default='p',    dest='early_stopping_mode',             help="early_stopping_mode. g='global', p='per page'")
+    parser.add_argument('-espat',       default=10,     dest='early_stopping_patience',type=int,help="early_stopping_patience")
+    parser.add_argument('-verbose',     default=1,                                  type=int,   help='1=show batch increment, other=mute')
+
+    parser.add_argument('-stride',      default=2,                                  type=int,   help='RED-Net stride')
+    parser.add_argument('-every',       default=1,                                  type=int,   help='RED-Net shortcuts every x layers')
+
+    parser.add_argument('--test',                                          action='store_true', help='Only run test')
+    parser.add_argument('--show',                                          action='store_true', help='Show the result')
+
+    parser.add_argument('-loadmodel',                                               type=str,   help='Weights filename to load for test')
+
+    args = parser.parse_args()
+
+    if args.step == -1:
+        args.step = args.window
+
+    return args
+
+
 # ----------------------------------------------------------------------------
+def define_weights_filename(config):
+    if config.loadmodel != None:
+        weights_filename = config.loadmodel + '_ftune' + str(config.db) + str(config.dbp) + '.h5'
+    else:
+        BASE_LOG_NAME = "{}_{}_{}x{}_s{}{}{}_f{}_k{}{}_se{}_e{}_b{}_es{}".format(
+                                config.db, config.dbp,
+                                config.window, config.window, config.step,
+                                '_aug' if config.aug else '',
+                                '_drop'+str(config.dropout) if config.dropout > 0 else '',
+                                config.nb_filters,
+                                config.kernel,
+                                '_s' + str(config.stride) if config.stride > 1 else '',
+                                config.nb_super_epoch, config.nb_epoch, config.batch,
+                                config.early_stopping_mode)
+        weights_filename = 'model_weights_' + BASE_LOG_NAME + '.h5'
+
+    return weights_filename
+
+
 # ----------------------------------------------------------------------------
-parser = argparse.ArgumentParser(description='A selectional auto-encoder approach for document image binarization')
-parser.add_argument('-path',        required=True,                                          help='base path to datasets')
-parser.add_argument('-db',          required=True,  choices=['dibco','palm','phi','ein','sal','voy','bdi','all'],  help='Database name')
-parser.add_argument('-dbp',                                                                 help='Database dependent parameters [dibco fold, palm gt]')
+def build_SAE_network(config, weights_filename):
+    nb_layers = 5
+    autoencoder, encoder, decoder = utilModelREDNet.build_REDNet(nb_layers,
+                                            config.window, config.nb_filters,
+                                            config.kernel, config.dropout,
+                                            config.stride, config.every)
 
-parser.add_argument('--aug',                                           action='store_true', help='Load augmentation folders')
-parser.add_argument('-w',           default=256,    dest='window',              type=int,   help='window size')
-parser.add_argument('-s',           default=-1,     dest='step',                type=int,   help='step size. -1 to use window size')
-parser.add_argument('-f',           default=64,     dest='nb_filters',          type=int,   help='nb_filters')
-parser.add_argument('-k',           default=5,      dest='kernel',              type=int,   help='kernel size')
-parser.add_argument('-drop',        default=0,      dest='dropout',             type=float, help='dropout value')
-parser.add_argument('-page',        default=-1,                                 type=int,   help='Page size to divide the training set. -1 to load all')
-parser.add_argument('-start_from',  default=0,                                  type=int,   help='Start from this page')
-parser.add_argument('-super',       default=1,      dest='nb_super_epoch',      type=int,   help='nb_super_epoch')
-parser.add_argument('-th',          default=-1,     dest='threshold',           type=float, help='threshold. -1 to test from 0 to 1')
-parser.add_argument('-e',           default=200,    dest='nb_epoch',            type=int,   help='nb_epoch')
-parser.add_argument('-b',           default=10,     dest='batch',               type=int,   help='batch size')
-parser.add_argument('-esmode',      default='p',    dest='early_stopping_mode',             help="early_stopping_mode. g='global', p='per page'")
-parser.add_argument('-espat',       default=10,     dest='early_stopping_patience',type=int,help="early_stopping_patience")
-parser.add_argument('-verbose',     default=1,                                  type=int,   help='1=show batch increment, other=mute')
+    autoencoder.compile(optimizer='adam', loss=util.micro_fm, metrics=['mse'])
+    print(autoencoder.summary())
 
-parser.add_argument('-stride',      default=2,                                  type=int,   help='RED-Net stride')
-parser.add_argument('-every',       default=1,                                  type=int,   help='RED-Net shortcuts every x layers')
+    if config.loadmodel != None:
+        print('Loading initial weights from', config.loadmodel )
+        autoencoder.load_weights( config.loadmodel )
+    elif config.test == True:
+        print('Loading test weights from', weights_filename )
+        autoencoder.load_weights( weights_filename )
 
-parser.add_argument('--test',                                          action='store_true', help='Only run test')
-parser.add_argument('--show',                                          action='store_true', help='Show the result')
-
-parser.add_argument('-loadmodel',                                               type=str,   help='Weights filename to load for test')
-
-args = parser.parse_args()
-
-if args.step == -1:
-    args.step = args.window
+    return autoencoder
 
 
-BASE_LOG_NAME = "{}_{}_{}x{}_s{}{}{}_f{}_k{}{}_se{}_e{}_b{}_es{}".format(
-                            args.db, args.dbp,
-                            args.window, args.window, args.step,
-                            '_aug' if args.aug else '',
-                            '_drop'+str(args.dropout) if args.dropout > 0 else '',
-                            args.nb_filters,
-                            args.kernel,
-                            '_s' + str(args.stride) if args.stride > 1 else '',
-                            args.nb_super_epoch, args.nb_epoch, args.batch,
-                            args.early_stopping_mode)
+# ----------------------------------------------------------------------------
+def main(args=None):
+    args = parse_menu()
 
-if args.loadmodel != None:
-    weights_filename = args.loadmodel + '_ftune' + str(args.db) + str(args.dbp) + '.h5'
-else:
-    weights_filename = 'model_weights_' + BASE_LOG_NAME + '.h5'
+    x_sufix = '_GR'
+    y_sufix = '_GT'
 
+    weights_filename = define_weights_filename(args)
 
-print('Loading data...')
+    print('Loading data...')
 
-x_sufix = '_GR'
-y_sufix = '_GT'
+    train_folds, test_folds = load_dataset_folds(args.db, args.dbp)
 
-train_folds, test_folds = load_dataset_folds(args.db, args.dbp)
+    # Run data augmentation ?
+    if args.aug == True:       # Add the augmented folders
+        for f in list(train_folds):
+            train_folds.append( util.rreplace(f, "/", "/aug_", 1) )
 
-# augmentation ?
-if args.aug == True:       # Add the augmented folders
-    for f in list(train_folds):
-        train_folds.append( util.rreplace(f, "/", "/aug_", 1) )
+    array_test_files = util.load_array_of_files(args.path, test_folds)
+    x_test, y_test = utilDataGenerator.generate_chunks(array_test_files, x_sufix, y_sufix, args.window, args.window)
 
-array_test_files = util.load_array_of_files(args.path, test_folds)
-x_test, y_test = utilDataGenerator.generate_chunks(array_test_files, x_sufix, y_sufix, args.window, args.window)
+    if args.test == False:
+        array_train_files = util.load_array_of_files(args.path, train_folds)
+        train_data_generator = utilDataGenerator.LazyChunkGenerator(array_train_files, x_sufix, y_sufix, args.page, args.window, args.step)
+        train_data_generator.shuffle()
 
-if args.test == False:
-    array_train_files = util.load_array_of_files(args.path, train_folds)
-    train_data_generator = utilDataGenerator.LazyChunkGenerator(array_train_files, x_sufix, y_sufix, args.page, args.window, args.step)
-    train_data_generator.shuffle()
-
-    if args.start_from > 0:
-        train_data_generator.set_pos(args.start_from)
+        if args.start_from > 0:
+            train_data_generator.set_pos(args.start_from)
 
 
-print('# Processing path:', args.path)
-print('# Database:', args.db)
-print('# Db param:', args.dbp)
-print('# Train data:', len(train_data_generator) if args.test == False else '--')
-print('# Test data:', x_test.shape)
-print('# Augmentation:', args.aug)
-print('# Window size:', args.window)
-print('# Step size:', args.step)
-print('# Init weights:', args.loadmodel)
-print('# nb_filters:', args.nb_filters)
-print('# kernel size:', args.kernel)
-print('# Dropout:', args.dropout)
-print('# nb_super_epoch:', args.nb_super_epoch)
-print('# nb_pages:', args.page)
-print('# nb_epoch:', args.nb_epoch)
-print('# batch:', args.batch)
-print('# early_stopping_mode:', args.early_stopping_mode)
-print('# early_stopping_patience:', args.early_stopping_patience)
-print('# Threshold:', args.threshold)
-print('# Log files:', BASE_LOG_NAME)
+    print('# Processing path:', args.path)
+    print('# Database:', args.db)
+    print('# Db param:', args.dbp)
+    print('# Train data:', len(train_data_generator) if args.test == False else '--')
+    print('# Test data:', x_test.shape)
+    print('# Augmentation:', args.aug)
+    print('# Window size:', args.window)
+    print('# Step size:', args.step)
+    print('# Init weights:', args.loadmodel)
+    print('# nb_filters:', args.nb_filters)
+    print('# kernel size:', args.kernel)
+    print('# Dropout:', args.dropout)
+    print('# nb_super_epoch:', args.nb_super_epoch)
+    print('# nb_pages:', args.page)
+    print('# nb_epoch:', args.nb_epoch)
+    print('# batch:', args.batch)
+    print('# early_stopping_mode:', args.early_stopping_mode)
+    print('# early_stopping_patience:', args.early_stopping_patience)
+    print('# Threshold:', args.threshold)
+    print('# Weights filename:', weights_filename)
 
 
-nb_layers = 5
-autoencoder, encoder, decoder = utilModelREDNet.build_REDNet(nb_layers,
-                                        args.window, args.nb_filters,
-                                        args.kernel, args.dropout,
-                                        args.stride, args.every)
+    autoencoder = build_SAE_network(args, weights_filename)
 
-autoencoder.compile(optimizer='adam', loss=util.micro_fm, metrics=['mse'])
-print(autoencoder.summary())
+    best_th = args.threshold
 
+    if args.test == False:
+        args.monitor='min'
+        best_th = utilFit.batch_fit_with_data_generator(autoencoder,
+                        train_data_generator, x_test, y_test, args, weights_filename)
 
-best_th = args.threshold
-
-if args.loadmodel != None:
-    print('Loading initial weights from', args.loadmodel )
-    autoencoder.load_weights( args.loadmodel )
-elif args.test == True:
-    print('Loading test weights from', weights_filename )
-    autoencoder.load_weights( weights_filename )
-
-if args.test == False:
-    args.monitor='min'
-    best_th = utilFit.batch_fit_with_data_generator(autoencoder,
-                    train_data_generator, x_test, y_test, args, weights_filename)
-
-    # Re-Load last weights
-    autoencoder.load_weights( weights_filename )
+        # Re-Load last weights
+        autoencoder.load_weights( weights_filename )
 
 
-# Save output images
+    # Save output images
+    args.modelpath = weights_filename
+    args.threshold = best_th
+    save_images(autoencoder, args, test_folds)
 
-args.modelpath = weights_filename
-args.threshold = best_th
-save_images(autoencoder, args, test_folds)
+
+# ----------------------------------------------------------------------------
+if __name__ == "__main__":
+    main()
