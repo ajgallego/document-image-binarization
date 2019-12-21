@@ -2,7 +2,7 @@
 """
 Installs two executables:
     - binarize
-    - train
+    - train_binarizer
 """
 import codecs
 
@@ -27,7 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'binarize = binarize.binarize:main',
-            'train = binarize.train:main',
+            'train_binarizer = binarize.train:main',
         ],
     },
 )
