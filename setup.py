@@ -18,9 +18,16 @@ setup(
     author_email='jgallego@dlsi.ua.es, jcalvo@dlsi.ua.es',
     url='https://github.com/ajgallego/document-image-binarization',
     license='GNU General Public License v3.0',
-    packages=find_packages(exclude=('tests', 'docs')),
+    packages=['binarize'],
     install_requires=open('requirements.txt').read().split('\n'),
+    include_package_data = True,
     package_data={
-        '': ['*.json', '*.yml', '*.yaml'],
+        'binarize': ['MODELS/*.h5'],
+    },
+    entry_points={
+        'console_scripts': [
+            'binarize = binarize.binarize:main',
+            'train = binarize.train:main',
+        ],
     },
 )
