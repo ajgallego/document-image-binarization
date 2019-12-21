@@ -6,8 +6,8 @@ import os
 import argparse
 import numpy as np
 import warnings
-import util, utilFit, utilDataGenerator, utilModelREDNet
 from keras import backend as K
+from . import util, utilFit, utilDataGenerator, utilModelREDNet
 
 util.init()
 warnings.filterwarnings('ignore')
