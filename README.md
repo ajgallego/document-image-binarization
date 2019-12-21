@@ -53,7 +53,16 @@ If you want to binarize this image using the model trained for Dibco 2016 and th
 $ python binarize.py -imgpath img01.png -modelpath MODELS/model_weights_dibco_6_256x256_s96_aug_m205_f64_k5_s2_se3_e200_b32_esp.h5 -w 256 -s 96 -f 64 -k 5 -stride 2 -th 0.5 --demo
 ```
 
-The `MODELS` folder includes the trained models for the datasets evaluated.
+The `MODELS` folder includes the following trained models for the datasets evaluated:
+
+* `MODELS/model_weights_all_None_256x256_s96_aug_m205_f64_k5_s2_se3_e200_b32_esp.h5`
+* `MODELS/model_weights_dibco_5_256x256_s96_aug_m205_f64_k5_s2_se2_e200_b32_esp.h5`
+* `MODELS/model_weights_dibco_6_256x256_s96_aug_m205_f64_k5_s2_se3_e200_b32_esp.h5`
+* `MODELS/model_weights_ein_-1_256x256_s96_aug_m205_f64_k5_s2_se2_e200_b32_esp.h5`
+* `MODELS/model_weights_palm_0_256x256_s96_aug_m205_f64_k5_s2_se2_e200_b32_esp.h5`
+* `MODELS/model_weights_palm_1_256x256_s96_aug_m205_f64_k5_s2_se2_e200_b32_esp.h5`
+* `MODELS/model_weights_phi_-1_256x256_s96_aug_m205_f64_k5_s2_se2_e200_b32_esp.h5`
+* `MODELS/model_weights_sal_-1_256x256_s96_aug_m205_f64_k5_s2_se2_e200_b32_esp.h5`
 
 
 
