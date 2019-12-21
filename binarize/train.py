@@ -1,17 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import sys, os
 import cv2
-import os
 import argparse
 import numpy as np
 import warnings
 from keras import backend as K
-from . import util, utilFit, utilDataGenerator, utilModelREDNet
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import util, utilFit, utilDataGenerator, utilModelREDNet
 
 util.init()
 warnings.filterwarnings('ignore')
-
 K.set_image_data_format('channels_last')
 
 if K.backend() == 'tensorflow':

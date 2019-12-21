@@ -1,17 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+import sys, os
 import time
 import argparse
 import cv2
 import warnings
 import numpy as np
 from keras import backend as K
-from . import util, utilDataGenerator, utilModelREDNet
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+import util, utilDataGenerator, utilModelREDNet
 
 util.init()
 warnings.filterwarnings('ignore')
-
 K.set_image_data_format('channels_last')
 
 if K.backend() == 'tensorflow':
@@ -62,6 +64,10 @@ def build_SAE_network(config):
 
     autoencoder.compile(optimizer='adam', loss=util.micro_fm, metrics=['mse'])
 
+    pkg_models = os.listdir( os.path.join(os.path.dirname(os.path.abspath(__file__)), 'MODELS') )
+    if config.modelpath.replace('MODELS/', '') in pkg_models:
+        config.modelpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), config.modelpath)
+
     autoencoder.load_weights(config.modelpath)
 
     return autoencoder
@@ -70,6 +76,7 @@ def build_SAE_network(config):
 # ----------------------------------------------------------------------------
 def load_and_prepare_input_image(config):
     img = cv2.imread(config.imgpath, False)
+    assert img is not None, 'Empty file'
     img = np.asarray(img)
 
     original_rows = img.shape[0]
