@@ -20,6 +20,9 @@ setup(
     license='GNU General Public License v3.0',
     packages=['binarize'],
     install_requires=open('requirements.txt').read().split('\n'),
+    extras_require={
+        'demo': ['opencv-python==4.*'],
+    },
     include_package_data = True,
     package_data={
         'binarize': ['MODELS/*.h5'],
@@ -27,6 +30,7 @@ setup(
     entry_points={
         'console_scripts': [
             'binarize = binarize.binarize:main',
+            'binarize-demo = binarize.binarize:demo[demo]',
             'train_binarizer = binarize.train:main',
         ],
     },

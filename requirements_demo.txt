@@ -1,0 +1,6 @@
+# Use this requirements file if you are going to use the --demo option
+numpy
+opencv-python==4.*
+Keras==2.*
+scikit-learn
+tensorflow==1.*

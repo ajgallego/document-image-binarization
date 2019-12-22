@@ -1,3 +1,5 @@
+# Standard requirements file.
+# If you are going to use the --demo option please use the requirements_demo.txt file.
 numpy
 opencv-python-headless==4.*
 Keras==2.*

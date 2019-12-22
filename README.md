@@ -96,7 +96,6 @@ The parameters of this script are the following:
 | `-espat`     |  10     | Early stopping patience          |
 | `-verbose`   |  1      | 1=show batch increment, other=mute |
 | `--test`     |         | Only run test (deactivate training) |
-| `--show`     |         | Show the output images           |
 | `-loadmodel` |         | Weights filename to load for test or for initialization  |
 
 

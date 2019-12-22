@@ -175,13 +175,11 @@ def parse_menu():
     parser.add_argument('-espat',       default=10,     dest='early_stopping_patience',type=int,help="early_stopping_patience")
     parser.add_argument('-verbose',     default=1,                                  type=int,   help='1=show batch increment, other=mute')
 
-    parser.add_argument('-stride',      default=2,                                  type=int,   help='RED-Net stride')
-    parser.add_argument('-every',       default=1,                                  type=int,   help='RED-Net shortcuts every x layers')
+    parser.add_argument('-stride',      default=2,   type=int,   help='RED-Net stride')
+    parser.add_argument('-every',       default=1,   type=int,   help='RED-Net shortcuts every x layers')
 
-    parser.add_argument('--test',                                          action='store_true', help='Only run test')
-    parser.add_argument('--show',                                          action='store_true', help='Show the result')
-
-    parser.add_argument('-loadmodel',                                               type=str,   help='Weights filename to load for test')
+    parser.add_argument('--test',     action='store_true', help='Only run test')
+    parser.add_argument('-loadmodel', type=str,   help='Weights filename to load for test')
 
     args = parser.parse_args()
 
@@ -248,7 +246,7 @@ def main(args=None):
     # Run data augmentation ?
     if args.aug == True:       # Add the augmented folders
         for f in list(train_folds):
-            train_folds.append( util.rreplace(f, "/", "/aug_", 1) )
+            train_folds.append( util.rreplace(f, '/', '/aug_', 1) )
 
     array_test_files = util.load_array_of_files(args.path, test_folds)
     x_test, y_test = utilDataGenerator.generate_chunks(array_test_files, x_sufix, y_sufix, args.window, args.window)
@@ -295,7 +293,6 @@ def main(args=None):
 
         # Re-Load last weights
         autoencoder.load_weights( weights_filename )
-
 
     # Save output images
     args.modelpath = weights_filename

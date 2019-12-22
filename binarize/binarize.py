@@ -24,32 +24,31 @@ if K.backend() == 'tensorflow':
 
 
 # ----------------------------------------------------------------------------
-def parse_menu():
+def parse_menu(activate_demo_opt = False):
     parser = argparse.ArgumentParser(description='A selectional auto-encoder approach for document image binarization')
 
-    parser.add_argument('-imgpath',    required=True,        help='path to the image to process')
+    parser.add_argument('-imgpath',    required=True,        help='Path to the image to process')
     parser.add_argument('-modelpath',   default='MODELS/model_weights_all_None_256x256_s96_aug_m205_f64_k5_s2_se3_e200_b32_esp.h5',
                                                     help='Path to the model to load')
-    parser.add_argument('-w',        default=256,    dest='window',              type=int,   help='window size')
-    parser.add_argument('-s',        default=-1,     dest='step',                type=int,   help='step size. -1 to use window size')
-    parser.add_argument('-f',        default=64,     dest='nb_filters',          type=int,   help='nb_filters')
-    parser.add_argument('-k',        default=5,      dest='kernel',              type=int,   help='kernel size')
-    parser.add_argument('-drop',     default=0,      dest='dropout',             type=float, help='dropout value')
+    parser.add_argument('-w',        default=256,    dest='window',              type=int,   help='Window size')
+    parser.add_argument('-s',        default=-1,     dest='step',                type=int,   help='Step size. -1 to use window size')
+    parser.add_argument('-f',        default=64,     dest='nb_filters',          type=int,   help='Nb. filters')
+    parser.add_argument('-k',        default=5,      dest='kernel',              type=int,   help='Kernel size')
+    parser.add_argument('-drop',     default=0,      dest='dropout',             type=float, help='Dropout value')
     parser.add_argument('-stride',   default=2,                                  type=int,   help='RED-Net stride')
     parser.add_argument('-every',    default=1,                                  type=int,   help='RED-Net shortcuts every x layers')
-    parser.add_argument('-th',       default=0.5,    dest='threshold',           type=float, help='threshold')
-    parser.add_argument('--demo',                    dest='demo',       action='store_true', help='Demo mode')
-    parser.add_argument('-save',     default=None,   dest='outFilename',                     help='save the output image')
+    parser.add_argument('-th',       default=0.5,    dest='threshold',           type=float, help='Threshold volue')
+    parser.add_argument('-save',     default='out.png',   dest='outFilename',     help='Output image filename')
+    if activate_demo_opt:
+        parser.add_argument('--demo',    dest='demo',       action='store_true', help='Demo mode')
 
     args = parser.parse_args()
 
     if args.step == -1:
         args.step = args.window
 
-    if args.demo == False and args.outFilename == None:
-        util.print_error("ERROR: no output mode selected\nPlease choose between --demo or -save options")
-        parser.print_help()
-        quit()
+    if activate_demo_opt == False:
+        args.demo = False
 
     return args
 
@@ -93,8 +92,10 @@ def load_and_prepare_input_image(config):
 
 
 # ----------------------------------------------------------------------------
-def main(args=None):
-    args = parse_menu()
+def main(activate_demo_opt=False, run_demo=False):
+    args = parse_menu( activate_demo_opt )
+    if run_demo:
+        args.demo = True
 
     autoencoder = build_SAE_network(args)
 
@@ -124,10 +125,15 @@ def main(args=None):
                 clone *= 255
                 clone = clone.astype('uint8')
 
-                cv2.rectangle(clone, (x, y), (x + args.window, y + args.window), (255, 255, 255), 2)
-                cv2.namedWindow("Demo", cv2.WINDOW_NORMAL)
-                cv2.imshow("Demo", clone)
-                cv2.waitKey(1)
+                try:
+                    cv2.rectangle(clone, (x, y), (x + args.window, y + args.window), (255, 255, 255), 2)
+                    cv2.namedWindow('Demo', cv2.WINDOW_NORMAL)
+                    cv2.imshow('Demo', clone)
+                    cv2.waitKey(1)
+                except:
+                    print('There was an error displaying the demo. You may need to '
+                                  'install the full opencv version. Please run: '
+                                  'pip install opencv-python==4.*')
                 time.sleep( 0.5 )
                 start_time += time.time() - demo_time
 
@@ -141,9 +147,14 @@ def main(args=None):
         finalImg = cv2.resize(finalImg, (cols, rows), interpolation = cv2.INTER_CUBIC)
 
     if args.demo == True:
-        cv2.namedWindow("Demo", cv2.WINDOW_NORMAL)
-        cv2.imshow("Demo", finalImg)
-        cv2.waitKey(0)
+        try:
+            cv2.namedWindow('Demo', cv2.WINDOW_NORMAL)
+            cv2.imshow('Demo', finalImg)
+            cv2.waitKey(0)
+        except:
+            print('There was an error displaying the demo. You may need to '
+                          'install the full opencv version. Please run: '
+                          'pip install opencv-python==4.*')
 
     if args.outFilename != None :
         cv2.imwrite(args.outFilename, finalImg)
@@ -151,5 +162,10 @@ def main(args=None):
 
 # ----------------------------------------------------------------------------
 if __name__ == "__main__":
-    main()
+    main(activate_demo_opt = '--demo' in sys.argv
+
+
+# ----------------------------------------------------------------------------
+def demo():
+    main(run_demo=True)
 
