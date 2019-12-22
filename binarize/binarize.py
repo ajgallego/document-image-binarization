@@ -161,11 +161,12 @@ def main(activate_demo_opt=False, run_demo=False):
 
 
 # ----------------------------------------------------------------------------
-if __name__ == "__main__":
-    main(activate_demo_opt = '--demo' in sys.argv
+# Binarize-demo entry point
+def demo():
+    main(run_demo=True)
 
 
 # ----------------------------------------------------------------------------
-def demo():
-    main(run_demo=True)
+if __name__ == "__main__":
+    main(activate_demo_opt = '--demo' in sys.argv)
 
